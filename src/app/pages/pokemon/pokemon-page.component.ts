@@ -1,21 +1,21 @@
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { PokemonListComponent } from "../../pokemon/components/pokemon-list/pokemon-list.component";
 import { PokemonListSkeletonComponent } from "./ui/pokemon-list-skeleton/pokemon-list-skeleton.component";
 import { PokemonService } from '../../pokemon/services/pokemon.service';
 import { SimplePokemon } from '../../pokemon/interfaces';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, tap } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-pokemon-page',
-  imports: [PokemonListComponent, PokemonListSkeletonComponent],
+  imports: [PokemonListComponent, PokemonListSkeletonComponent, RouterLink],
   templateUrl: './pokemon-page.component.html',
   styleUrl: './pokemon-page.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class PokemonPageComponent implements OnInit {
+export default class PokemonPageComponent {
 
   private pokemonService = inject(PokemonService);
   public pokemons = signal<SimplePokemon[]>([]);
@@ -26,12 +26,18 @@ export default class PokemonPageComponent implements OnInit {
   private title = inject(Title);
 
   public currentPage = toSignal(
-    this.route.queryParamMap.pipe(
-      map(params => params.get('page') ?? 1),
+    this.route.params.pipe(
+      map(params => params['page'] ?? 1),
       map(page => ( isNaN(+page) ? 1 : +page)),
       map(page => Math.max(1, page))
     )
   )
+
+  public loadOnPageChange =  effect(() => {
+    this.loadPage(this.currentPage());
+  },
+  { allowSignalWrites: true }
+);
   // public isLoading = signal(true);
 
   // private appRef = inject(ApplicationRef);
@@ -40,25 +46,25 @@ export default class PokemonPageComponent implements OnInit {
   //   console.log('isStable', isStable);
   // })
 
-  ngOnInit() {
-    // setTimeout(() => {
-    //   this.isLoading.set(false);
-    // }, 3000);
+  // ngOnInit() {
+  //   // setTimeout(() => {
+  //   //   this.isLoading.set(false);
+  //   // }, 3000);
 
-    this.loadPage();
-  }
+  //   this.loadPage();
+  // }
 
   public loadPage(page: number = 0) {
     const currentPage = this.currentPage()! + page;
-    this.pokemonService.loadPage(currentPage)
+    this.pokemonService.loadPage(currentPage - 1)
     .pipe(
-      tap(() => {
-        this.router.navigate([], {
-          queryParams: {
-            page: currentPage
-          }
-        })
-      }),
+      // tap(() => {
+      //   this.router.navigate([], {
+      //     queryParams: {
+      //       page: currentPage
+      //     }
+      //   })
+      // }),
       tap(() => this.title.setTitle(`Listado de Pokemons - ${currentPage}`))
     )
     .subscribe(pokemons => {

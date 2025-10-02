@@ -13,6 +13,6 @@
 
 <!-- TODO: paginacion boton siguiente y anterior -->
 <div class="flex justify-between">
-  <button (click)="loadPage(-1)" class="mt-2">Anterior</button>
-  <button (click)="loadPage(+1)" class="mt-2">Siguiente</button>
+  <button [disabled]="currentPage() === 1" [routerLink]="['/pokemons/page', currentPage()! - 1]" class="mt-2">Anterior</button>
+  <button [routerLink]="['/pokemons/page', currentPage()! + 1]" class="mt-2">Siguiente</button>
 </div>
