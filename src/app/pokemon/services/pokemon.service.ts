@@ -26,7 +26,7 @@ export class PokemonService {
         }))
         return implePokemons
       }),
-      tap(console.log)
+      //tap(console.log)
     )
   }
 
