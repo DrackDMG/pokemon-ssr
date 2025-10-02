@@ -18,12 +18,14 @@ describe('App', () => {
 
   beforeEach(async () => {
 
-    TestBed.overrideComponent(App, {
-      set: {
-        imports: [NavbarComponentMock],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-      },
-    });
+    // TestBed.overrideComponent(App, {
+    //   set: {
+    //     imports: [NavbarComponentMock],
+    //     schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    //   },
+    // });
+
+    //recomendado
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideZonelessChangeDetection(), provideRouter([])]
