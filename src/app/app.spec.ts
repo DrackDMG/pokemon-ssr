@@ -1,21 +1,48 @@
-import { Component, provideZonelessChangeDetection } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { provideRouter } from '@angular/router';
+import { NavbarComponent } from './shared/components/navbar/navbar.component';
 
 describe('App', () => {
   let fixture: ComponentFixture<App>;
   let compiled: HTMLElement;
-  let Component: App;
+  let component: App;
+
+  @Component({
+    selector: 'app-navbar',
+    standalone: true,
+    template: `<h1>Hola Mundo</h1>`,
+  })
+  class NavbarComponentMock {}
 
   beforeEach(async () => {
+
+    TestBed.overrideComponent(App, {
+      set: {
+        imports: [NavbarComponentMock],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
+    });
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideZonelessChangeDetection(), provideRouter([])]
-    }).compileComponents();
+    })
+    .overrideComponent(App, {
+         add: {
+           imports: [NavbarComponentMock],
+         },
+         remove: {
+           imports: [NavbarComponent],
+         },
+       })
+    .compileComponents();
+
+
+
     fixture = TestBed.createComponent(App);
     compiled = fixture.nativeElement as HTMLElement;
-    Component = fixture.componentInstance;
+    component = fixture.componentInstance;
   });
 
   it('should create the app', () => {
