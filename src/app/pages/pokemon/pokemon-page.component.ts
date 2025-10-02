@@ -3,9 +3,10 @@ import { PokemonListComponent } from "../../pokemon/components/pokemon-list/poke
 import { PokemonListSkeletonComponent } from "./ui/pokemon-list-skeleton/pokemon-list-skeleton.component";
 import { PokemonService } from '../../pokemon/services/pokemon.service';
 import { SimplePokemon } from '../../pokemon/interfaces';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-pokemon-page',
@@ -20,6 +21,9 @@ export default class PokemonPageComponent implements OnInit {
   public pokemons = signal<SimplePokemon[]>([]);
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  private title = inject(Title);
 
   public currentPage = toSignal(
     this.route.queryParamMap.pipe(
@@ -46,7 +50,18 @@ export default class PokemonPageComponent implements OnInit {
 
   public loadPage(page: number = 0) {
     const currentPage = this.currentPage()! + page;
-    this.pokemonService.loadPage(currentPage).subscribe(pokemons => {
+    this.pokemonService.loadPage(currentPage)
+    .pipe(
+      tap(() => {
+        this.router.navigate([], {
+          queryParams: {
+            page: currentPage
+          }
+        })
+      }),
+      tap(() => this.title.setTitle(`Listado de Pokemons - ${currentPage}`))
+    )
+    .subscribe(pokemons => {
       this.pokemons.set(pokemons);
       //console.log('onInit');
     })
