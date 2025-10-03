@@ -3,11 +3,11 @@
   <!-- 12 pokemon card -->
    @for (pokemon of pokemons(); track pokemon.id) {
      <app-pokemon-card [pokemon]="pokemon"></app-pokemon-card>
+   } @empty {
+    <!--TODO: si no hay -->
+    <div class="col-span-5 text-center border-white h-28  flex justify-center items-center">
+     No hay pokemons
+    </div>
    }
-
-  <!--TODO: si no hay -->
-   <!-- <div class="col-span-5 text-center border-white h-28  flex justify-center items-center">
-    No hay pokemons
-   </div> -->
 
 </div>
